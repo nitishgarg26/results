@@ -1,9 +1,11 @@
 import streamlit as st
-from components.sidebar import render_sidebar
-from components.student_reports import render_student_reports
-from components.class_reports import render_class_reports
-from components.analytics import render_analytics
+import sys
 import os
+
+# Add project root to Python path
+project_root = os.path.dirname(os.path.abspath(__file__))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
 # Page configuration
 st.set_page_config(
@@ -12,6 +14,17 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Import components with error handling
+try:
+    from components.sidebar import render_sidebar
+    from components.student_reports import render_student_reports
+    from components.class_reports import render_class_reports
+    from components.analytics import render_analytics
+except ImportError as e:
+    st.error(f"Import Error: {e}")
+    st.error("Please ensure all required files are present in the repository.")
+    st.stop()
 
 # Custom CSS
 st.markdown("""
@@ -32,20 +45,24 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def main():
-    # Render sidebar and get navigation state
-    sidebar_state = render_sidebar()
-    
-    # Route to appropriate page
-    if sidebar_state['page'] == "🏠 Home":
-        render_home()
-    elif sidebar_state['page'] == "👤 Student Reports":
-        render_student_reports()
-    elif sidebar_state['page'] == "🎓 Class Reports":
-        render_class_reports()
-    elif sidebar_state['page'] == "📈 Analytics":
-        render_analytics()
-    elif sidebar_state['page'] == "⚙️ Settings":
-        render_settings()
+    try:
+        # Render sidebar and get navigation state
+        sidebar_state = render_sidebar()
+        
+        # Route to appropriate page
+        if sidebar_state['page'] == "🏠 Home":
+            render_home()
+        elif sidebar_state['page'] == "👤 Student Reports":
+            render_student_reports()
+        elif sidebar_state['page'] == "🎓 Class Reports":
+            render_class_reports()
+        elif sidebar_state['page'] == "📈 Analytics":
+            render_analytics()
+        elif sidebar_state['page'] == "⚙️ Settings":
+            render_settings()
+    except Exception as e:
+        st.error(f"Application Error: {e}")
+        st.error("Please check your database configuration and ensure all files are properly set up.")
 
 def render_home():
     """Render home page"""
@@ -61,40 +78,7 @@ def render_home():
     - **🎓 Class Reports**: Class-wise performance statistics
     - **📈 Analytics**: Advanced analytics and comparisons
     - **⚙️ Settings**: Database configuration and settings
-    
-    ### Quick Start:
-    1. Use the sidebar to navigate between different report types
-    2. Apply filters to focus on specific exams or classes
-    3. Export reports for further analysis
-    
-    ### Database Status:
     """)
-    
-    # Add database status check here
-    from services.database_service import DatabaseService
-    db_service = DatabaseService()
-    connection = db_service.db_config.get_connection()
-    
-    if connection:
-        st.success("✅ Database connection is active")
-        
-        # Show quick stats
-        students_df = db_service.get_all_students()
-        exams_df = db_service.get_available_exams()
-        classes = db_service.get_available_classes()
-        
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            st.metric("Total Students", len(students_df))
-        with col2:
-            st.metric("Total Exams", len(exams_df))
-        with col3:
-            st.metric("Total Classes", len(classes))
-        
-        connection.close()
-    else:
-        st.error("❌ Database connection failed. Please check your configuration.")
 
 def render_settings():
     """Render settings page"""
@@ -102,25 +86,11 @@ def render_settings():
     
     st.subheader("Database Configuration")
     
-    # Environment variables info
     st.info("""
-    Configure your database connection using environment variables:
-    - `DB_HOST`: Database host
-    - `DB_NAME`: Database name
-    - `DB_USER`: Database username
-    - `DB_PASSWORD`: Database password
-    - `DB_PORT`: Database port (default: 3306)
+    Configure your database connection using Streamlit secrets:
+    - Go to your app settings on Streamlit Cloud
+    - Add your database credentials in the secrets section
     """)
-    
-    # Show current configuration (without sensitive data)
-    from config.database import DatabaseConfig
-    config = DatabaseConfig()
-    
-    st.write("**Current Configuration:**")
-    st.write(f"- Host: {config.host}")
-    st.write(f"- Database: {config.database}")
-    st.write(f"- User: {config.user}")
-    st.write(f"- Port: {config.port}")
 
 if __name__ == "__main__":
     main()
