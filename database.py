@@ -1,18 +1,31 @@
-# database.py
+import os
+from dotenv import load_dotenv
 import mysql.connector
-from config import DB_CONFIG
+from mysql.connector import Error
+import streamlit as st
 
-def get_connection():
-    return mysql.connector.connect(**DB_CONFIG)
+load_dotenv()
 
-def fetch_data(query, params=None):
-    conn = get_connection()
-    df = None
-    try:
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
-        df = pd.DataFrame(rows)
-    finally:
-        conn.close()
-    return df
+class DatabaseConfig:
+    def __init__(self):
+        self.host = os.getenv('DB_HOST', 'localhost')
+        self.database = os.getenv('DB_NAME', 'exam_db')
+        self.user = os.getenv('DB_USER', 'root')
+        self.password = os.getenv('DB_PASSWORD', '')
+        self.port = int(os.getenv('DB_PORT', 3306))
+    
+    def get_connection(self):
+        """Create and return database connection"""
+        try:
+            connection = mysql.connector.connect(
+                host=self.host,
+                database=self.database,
+                user=self.user,
+                password=self.password,
+                port=self.port,
+                autocommit=True
+            )
+            return connection
+        except Error as e:
+            st.error(f"Database connection failed: {e}")
+            return None
