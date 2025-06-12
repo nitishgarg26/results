@@ -29,21 +29,33 @@ def render():
             columns = list(df.columns)
             col_str = ", ".join(f"`{c}`" for c in columns)
             val_str = ", ".join(["%s"] * len(columns))
-            update_str = ", ".join(f"`{c}`=VALUES(`{c}`)" for c in columns if c not in ["STID", "ExID"])
+            update_str = ", ".join(
+                f"`{c}`=VALUES(`{c}`)" for c in columns if c not in ["STID", "ExID"]
+            )
+
             query = f"""
                 INSERT INTO exam_results ({col_str})
                 VALUES ({val_str})
                 ON DUPLICATE KEY UPDATE {update_str}
             """
+
+            conn = None
+            cursor = None
             try:
                 conn = get_connection()
+                if conn is None:
+                    raise ConnectionError("Unable to establish database connection")
                 cursor = conn.cursor()
                 data = [tuple(row) for row in df.values]
                 cursor.executemany(query, data)
                 conn.commit()
-                st.success(f"Uploaded {cursor.rowcount} rows to the database.")
+                st.success(
+                    f"Uploaded {cursor.rowcount} rows to the database."
+                )
             except Exception as e:
                 st.error(f"Database error: {e}")
             finally:
-                cursor.close()
-                conn.close()
+                if cursor is not None:
+                    cursor.close()
+                if conn is not None:
+                    conn.close()
