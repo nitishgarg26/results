@@ -21,6 +21,7 @@ try:
     from components.student_reports import render_student_reports
     from components.class_reports import render_class_reports
     from components.analytics import render_analytics
+    from components.upload import render
 except ImportError as e:
     st.error(f"Import Error: {e}")
     st.error("Please ensure all required files are present in the repository.")
@@ -58,6 +59,8 @@ def main():
             render_class_reports()
         elif sidebar_state['page'] == "📈 Analytics":
             render_analytics()
+        elif sidebar_state['page'] == "Upload Results":
+            render()
         elif sidebar_state['page'] == "⚙️ Settings":
             render_settings()
     except Exception as e:

@@ -8,7 +8,7 @@ def render_sidebar():
     # Navigation
     page = st.sidebar.selectbox(
         "Select Report Type",
-        ["🏠 Home", "👤 Student Reports", "🎓 Class Reports", "📈 Analytics", "⚙️ Settings"]
+        ["🏠 Home", "👤 Student Reports", "🎓 Class Reports", "📈 Analytics", "Upload Results","⚙️ Settings"]
     )
     
     # Database connection status
