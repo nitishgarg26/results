@@ -23,11 +23,11 @@ def render_class_reports():
     col1, col2 = st.columns(2)
     
     with col1:
-        selected_class = st.selectbox("Select Class", classes)
+        selected_class = st.selectbox("Select Class", classes, key="class_report_class_select")
     
     with col2:
         exam_options = ["All Exams"] + [f"{row['EXNM']} ({row['ExID']})" for _, row in exams_df.iterrows()]
-        selected_exam = st.selectbox("Select Exam", exam_options)
+        selected_exam = st.selectbox("Select Exam", exam_options, key="class_report_exam_select")
     
     # Extract exam ID
     exam_id = None

@@ -8,7 +8,8 @@ def render_sidebar():
     # Navigation
     page = st.sidebar.selectbox(
         "Select Report Type",
-        ["🏠 Home", "👤 Student Reports", "🎓 Class Reports", "📈 Analytics", "Upload Results","⚙️ Settings"]
+        ["🏠 Home", "👤 Student Reports", "🎓 Class Reports", "📈 Analytics", "Upload Results","⚙️ Settings"],
+        key="sidebar_page_select"
     )
     
     # Database connection status
@@ -31,11 +32,11 @@ def render_sidebar():
     
     # Exam filter
     exam_options = ["All Exams"] + [f"{row['EXNM']} ({row['ExID']})" for _, row in exams_df.iterrows()]
-    selected_exam = st.sidebar.selectbox("Select Exam", exam_options)
+    selected_exam = st.sidebar.selectbox("Select Exam", exam_options, key="sidebar_exam_select")
     
     # Class filter
     class_options = ["All Classes"] + classes
-    selected_class = st.sidebar.selectbox("Select Class", class_options)
+    selected_class = st.sidebar.selectbox("Select Class", class_options, key="sidebar_class_select")
     
     # Extract exam ID
     exam_id = None
